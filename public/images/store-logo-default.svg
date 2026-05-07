@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 44" role="img" aria-labelledby="title desc">
+  <title id="title">Logo</title>
+  <desc id="desc">Marca tech  ícone em rede e texto</desc>
+  <!-- Ícone: nós e linhas (estilo tech / rede) -->
+  <circle cx="14" cy="22" r="5.5" fill="#2563eb"/>
+  <circle cx="30" cy="12" r="4" fill="#3b82f6"/>
+  <circle cx="30" cy="32" r="4" fill="#3b82f6"/>
+  <circle cx="46" cy="22" r="5.5" fill="#2563eb"/>
+  <path d="M19 22h22M30 16v12M17 18l26 8M17 26l26-8" stroke="#2563eb" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- Texto -->
+  <text x="62" y="29" font-family="ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="700" fill="#111827">tech</text>
+</svg>

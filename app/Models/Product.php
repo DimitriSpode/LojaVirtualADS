@@ -1,0 +1,18 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Product extends Model
+{
+    use HasFactory;
+
+    protected $fillable = ['name', 'description', 'quantity', 'price',
+    'image', 'type_id'];
+    
+    public function type() {
+        return $this->belongsTo(Type::class); // Isso faz o tipo do produto, pertence ao produto
+    }
+}

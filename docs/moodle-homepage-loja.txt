@@ -1,0 +1,73 @@
+Documentação — Homepage marketplace (avaliação Loja Virtual)
+==========================================================
+
+Este arquivo descreve, em minhas palavras, o que foi adicionado/alterado no projeto para a nova tela inicial com produtos à venda.
+
+1) Rota e controller
+---------------------
+- Adicionei o arquivo app/Http/Controllers/HomeController.php com o método index(), que:
+  - Busca produtos reais na tabela products com relacionamento type carregado (with).
+  - Filtra apenas produtos com quantity > 0 e price > 0 (regra pedida no enunciado).
+  - Aplica filtro opcional por tipo quando existe o parâmetro de query ?tipo={id}.
+  - Ordena por nome.
+  - Busca os tipos (categories) que possuem ao menos um produto elegível (whereHas), para o menu de chips não mostrar categorias vazias.
+  - Retorna a view welcome passando products, types e tipoAtual (valor atual do filtro na URL).
+
+- Em routes/web.php substituí o closure da rota GET / que só devolvia a welcome sem dados pela rota nomeada home apontando para HomeController@index:
+  Route::get('/', [HomeController::class, 'index'])->name('home');
+
+
+2) Layout da vitrine (por que não usei x-guest-layout)
+--------------------------------------------------------
+- O layout guest do Breeze (layouts/guest.blade.php) coloca o conteúdo em uma coluna estreita (sm:max-w-md), o que impede a largura ~1200–1400px e o grid da homepage.
+
+- Criei layouts/storefront.blade.php com container max-w-[1400px], fundo neutro, Vite e fontes Figtree, pensado só para a vitrine pública.
+
+- Registrei o componente de layout PHP app/View/Components/StorefrontLayout.php que renderiza layouts/storefront.blade.php, aceitando título opcional; na welcome uso <x-storefront-layout :title="config('app.name')">.
+
+
+3) Componentes Blade (resources/views/components/storefront/)
+----------------------------------------------------------------
+Para organizar o wireframe e facilitar manutenção, dividi a página em componentes anônimos:
+
+- browser-bar.blade.php — Faixa superior estilo “barra de navegador”: botões voltar/avançar/atualizar/home (history/location), barra central arredondada com URL de leitura, e à direita o bloco de autenticação.
+
+- header-auth.blade.php — Visitante: botões Login e Register. Usuário logado: dropdown igual ao padrão Breeze (Dashboard, Profile, Logout), com fallback simples em telas pequenas.
+
+- brand-row.blade.php — Logo em quadrinho com borda/sombra + nome da loja (config app.name).
+
+- category-menu.blade.php — Chips “Todos” e um por tipo; links para route('home') e route('home', ['tipo' => id]); scroll horizontal no mobile (flex + overflow-x-auto).
+
+- section-title.blade.php — Card pequeno centralizado com o texto “Lista de produtos”.
+
+- product-card.blade.php — Card do produto com imagem (storage ou placeholder), nome, tipo, descrição truncada, preço em BRL e botão “Ver produto”.
+
+- product-modal.blade.php — Modal Alpine.js que escuta o evento global storefront-product na window e mostra detalhes do produto (sem nova rota nem migration).
+
+
+4) View welcome.blade.php
+----------------------------
+- Substituí o conteúdo anterior (guest + links Laravel) pela composição dos componentes storefront na ordem do wireframe: browser-bar → marca → categorias → título → grid de cards → modal.
+- Grid responsivo: 1 coluna (mobile), 2 (md), 4 (xl).
+- Estado vazio: mensagem quando não há produtos com estoque/preço válidos ou quando o filtro não retorna itens; link para limpar filtro quando aplicável.
+
+
+5) Comportamento “Ver produto”
+-------------------------------
+- Não criei rota nova nem migration. O botão em cada card dispara um evento Alpine ($dispatch('storefront-product', dados)) com JSON montado via @js() no Blade.
+- O modal escuta storefront-product.window e exibe nome, tipo, descrição, preço formatado no cliente, imagem e quantidade em estoque.
+
+
+6) Observação sobre o grid 4+3 do esboço
+-----------------------------------------
+- O wireframe mostra uma quantidade fixa de colunas por linha; na implementação usei CSS Grid com fluxo automático para qualquer número de produtos cadastrados no banco (comportamento típico de loja real).
+
+
+Arquivos principais tocados/adicionados
+----------------------------------------
+- app/Http/Controllers/HomeController.php (novo)
+- app/View/Components/StorefrontLayout.php (novo)
+- routes/web.php (rota / → HomeController)
+- resources/views/layouts/storefront.blade.php (novo)
+- resources/views/components/storefront/*.blade.php (novos)
+- resources/views/welcome.blade.php (reescrevido)
